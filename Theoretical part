@@ -1,0 +1,39 @@
+What is AVL Tree? 
+
+-AVL Tree is type of BinarySearch Tree which main idea is to mantain the O(log n) depth for his nodes.That is accomplished by performing
+two main function methods called LijeviZaokret(LEFT ROTATION) and DesniZakoret(RIGHT ROTATION).This methods are changing order of nodes by
+replacing father with child, grandfather with grandson, uncle with nephew and so on.After suitable replacement, we get AVL tree which is
+perfectly balanced. AVL tree does not support 3 element (nodes) version because, if you pay attention, you will see that there is no way 
+to accomplish perfect-balanced with three(3) elements.
+
+Why AVL Trees have to be perfectly balanced?
+
+-Problem with BinarySearch trees are that they are built in order to have O(log n) search time for specific element.But what if we have
+speficis element in our BST like this (10,20,30,40). Because of specific orders how to add elements to BST for this example we will not
+have the real BST, it will be more like a list, and we know that searching list takes O(n) time where n is number of elements, that list
+contains.So we want our tree to self-balance in order to stay perfectly-balanced which guarantee us depth of O(log n) so in that case
+we will have our Search algorithm performing O(log n) time.
+
+What is Red-Black tree?
+
+-RB Tree is type of AVL tree, with all features of AVL trees and 4 more. Every RBT must have nodes in one and only one color (RED or BLACK)
+Root of RBT must be BLACK, his childrens are red, their childrens are black and so on.Our RBT must look like (BLACK-RED-BLACK-RED..)
+Second, RBT must have the same number of black nodes from root to nullptr(orphans,nodes without children,null pointer=nullptr) (when
+calculating the number of black nodes form root to orphans, we do NOT include root, and we INCLUDE orphans). Lastly, every red node must
+have black childrens, and every black node must hace red childrens.PS nullptr count like black node :).
+
+When to use this DS? 
+
+-If you are performing varius operations then it is better to use ordinary BST.But if you have real problems which most important part is
+searching for something, then it's better to use AVL trees because you don't know what element and in what order you will have to add.
+AVL trees will guarantee you their O(log n) time and that part of your project will be well-optimized.
+
+This is very small theoretical part, but I think it should be enough for beggining,
+I hope this will help someone even a little bit.
+
+PS.Code is writen in my native language (Croatian or Bosnian, google translate work for both).You can translate every variable name
+and see who works what.
+
+
+
+
