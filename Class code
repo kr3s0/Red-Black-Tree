@@ -1,0 +1,55 @@
+#include<iostream>
+#include<string>
+#include<algorithm>
+			
+using namespace std;
+
+
+class RBStablo{
+    struct Cvor{
+        int vrijednost;
+        string boja;
+        Cvor* lijevo_dijete;
+        Cvor* desno_dijete;
+        Cvor* roditelj;
+        Cvor(int vrijednost,string boja,Cvor* ld,Cvor* dd,Cvor* r){
+            this->vrijednost=vrijednost;
+            this->boja=boja;
+            this->lijevo_dijete=ld;
+            this->desno_dijete=dd;
+            this->roditelj=r;
+        }
+    };
+    Cvor* korijen;
+    Cvor* Dodaj(int vrijednost,Cvor* korijen);
+    void LijeviZaokret(Cvor* trenutni);
+    void DesniZaokret(Cvor* trenutni);
+    void PopraviStablo(Cvor* trenutni);
+    Cvor* VratiStrica(Cvor* trenutni);
+    bool AkojeLijevo(Cvor* trenutni);
+    bool Trazi(int vrijednost,Cvor* korijen);
+    Cvor* Trazeni(int vrijednost,Cvor* korijen);
+    void Preorder(Cvor* korijen);
+    void Inorder(Cvor* korijen);
+    int Max(Cvor* korijen);
+    int Min(Cvor* korijen);
+    int BrojElemenata(Cvor* korijen);
+    int Visina(Cvor* korijen);
+    int CrnaVisina(Cvor* korijen);
+    int DubinaElementa(int vrijednost,Cvor* korijen);
+public:
+    RBStablo(){
+        korijen=nullptr;
+    }
+    void Dodaj(int vrijednost);
+    bool Trazi(int vrijednost);
+    string DajBoju(int vrijednost);
+    void Preorder();
+    void Inorder();
+    int Max();
+    int Min();
+    int BrojElemenata();
+    int Visina();
+    int CrnaVisina();
+    int DubinaElementa(int vrijednost);
+};
