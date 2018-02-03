@@ -1,0 +1,407 @@
+#include<iostream>
+#include<string>
+#include<algorithm>
+
+using namespace std;
+
+
+class RBStablo{
+    struct Cvor{
+        int vrijednost;
+        string boja;
+        Cvor* lijevo_dijete;
+        Cvor* desno_dijete;
+        Cvor* roditelj;
+        Cvor(int vrijednost,string boja,Cvor* ld,Cvor* dd,Cvor* r){
+            this->vrijednost=vrijednost;
+            this->boja=boja;
+            this->lijevo_dijete=ld;
+            this->desno_dijete=dd;
+            this->roditelj=r;
+        }
+    };
+    Cvor* korijen;
+    Cvor* Dodaj(int vrijednost,Cvor* korijen);
+    void LijeviZaokret(Cvor* trenutni);
+    void DesniZaokret(Cvor* trenutni);
+    void PopraviStablo(Cvor* trenutni);
+    Cvor* VratiStrica(Cvor* trenutni);
+    bool AkojeLijevo(Cvor* trenutni);
+    bool Trazi(int vrijednost,Cvor* korijen);
+    Cvor* Trazeni(int vrijednost,Cvor* korijen);
+    void Preorder(Cvor* korijen);
+    void Inorder(Cvor* korijen);
+    int Max(Cvor* korijen);
+    int Min(Cvor* korijen);
+    int BrojElemenata(Cvor* korijen);
+    int Visina(Cvor* korijen);
+    int CrnaVisina(Cvor* korijen);
+    int DubinaElementa(int vrijednost,Cvor* korijen);
+public:
+    RBStablo(){
+        korijen=nullptr;
+    }
+    void Dodaj(int vrijednost);
+    bool Trazi(int vrijednost);
+    string DajBoju(int vrijednost);
+    void Preorder();
+    void Inorder();
+    int Max();
+    int Min();
+    int BrojElemenata();
+    int Visina();
+    int CrnaVisina();
+    int DubinaElementa(int vrijednost);
+};
+
+int main(){
+
+ return 0;
+}
+
+void RBStablo::Inorder(){
+    Inorder(korijen);
+}
+
+void RBStablo::Inorder(Cvor* korijen){
+    if(korijen==nullptr){
+        return;
+    }
+    Inorder(korijen->lijevo_dijete);
+    cout<<korijen->vrijednost<<"  "<<korijen->boja<<"  ";
+    Inorder(korijen->desno_dijete);
+}
+
+void RBStablo::Preorder(){
+    Preorder(korijen);
+}
+
+void RBStablo::Preorder(Cvor* korijen){
+    if(korijen==nullptr){
+        return;
+    }
+    cout<<korijen->vrijednost<<"  "<<korijen->boja<<"  ";
+    Preorder(korijen->lijevo_dijete);
+    Preorder(korijen->desno_dijete);
+}
+
+void RBStablo::LijeviZaokret(Cvor* trenutni){
+    if(trenutni->roditelj==nullptr){
+        return;
+    }
+    if(trenutni->roditelj->roditelj==nullptr){
+        return;
+    }
+    Cvor* roditelj=trenutni->roditelj; //Ovo je sada otac(roditelj) od trenutnog
+    trenutni->roditelj=roditelj->roditelj;//A ovo je dedo od trenutnog,ali mu pristupamo kao trenutni->roditelj
+    if(roditelj->roditelj!=nullptr){ //Ako postoji dedo
+        if(roditelj->roditelj->desno_dijete==roditelj){  //provjeravamo da li je roditelj lijevo ili desno dijete od dede
+            roditelj->roditelj->desno_dijete=trenutni;
+        }
+        else{
+            roditelj->roditelj->lijevo_dijete=trenutni; //isto..
+        }
+    }
+    Cvor* lijevo_dijete=trenutni->lijevo_dijete; //vrsimo lijevu rotaciju svih elemenata
+    trenutni->lijevo_dijete=roditelj;
+    roditelj->roditelj=trenutni;
+    roditelj->desno_dijete=lijevo_dijete;
+    if(lijevo_dijete!=nullptr){ //ako postoji lijevo dijete nakon zaokreta,njegov roditelj je pocetni roditelj
+        lijevo_dijete->roditelj=roditelj;
+    }
+    trenutni->boja="Crna"; //promjenimo boje dva kljucna cvora nad kojim smo vrsili zaokret shodno strategiji umetanja
+    roditelj->boja="Crvena";
+}
+
+void RBStablo::DesniZaokret(Cvor* trenutni){ //Ista implementacija kao i lijevi zaokret, samo "druga strana"
+    if(trenutni->roditelj==nullptr){
+        return;
+    }
+    if(trenutni->roditelj->roditelj==nullptr){
+        return;
+    }
+    Cvor* roditelj=trenutni->roditelj;
+    trenutni->roditelj=roditelj->roditelj;
+    if(roditelj->roditelj!=nullptr){
+        if(roditelj->roditelj->desno_dijete==roditelj){
+            roditelj->roditelj->desno_dijete=trenutni;
+        }
+        else{
+            roditelj->roditelj->lijevo_dijete=trenutni;
+        }
+    }
+    Cvor* desno_dijete=trenutni->desno_dijete;
+    trenutni->desno_dijete=roditelj;
+    roditelj->roditelj=trenutni;
+    roditelj->lijevo_dijete=desno_dijete;
+    if(desno_dijete!=nullptr){
+        desno_dijete->roditelj=roditelj;
+    }
+    trenutni->boja="Crna";
+    roditelj->boja="Crvena";
+}
+
+void RBStablo::Dodaj(int vrijednost){
+    if(korijen!=nullptr){ //Ako stablo nije prazno
+        PopraviStablo(Dodaj(vrijednost,korijen));//funkcija dodaj vraca novouneseni cvor, i nad njim pozovemo Popravistablo
+    }
+    else{
+        korijen=new Cvor(vrijednost,"Crna",nullptr,nullptr,nullptr); //korijen uvijek crne boje
+        PopraviStablo(korijen); //ista stvar..
+    }
+}
+
+RBStablo::Cvor* RBStablo::Dodaj(int vrijednost,Cvor* korijen){
+    if(vrijednost<korijen->vrijednost){
+        if(korijen->lijevo_dijete!=nullptr){
+            return Dodaj(vrijednost,korijen->lijevo_dijete);
+        }
+        else{
+            korijen->lijevo_dijete=new Cvor(vrijednost,"Crvena",nullptr,nullptr,korijen);//pošto nisu korijeni
+            return korijen->lijevo_dijete; //uvijek su crvene boje, pa se kasnije po potrebi mjenjaju
+        }
+    }
+    else{
+        if(korijen->desno_dijete!=nullptr){
+            return Dodaj(vrijednost,korijen->desno_dijete);
+        }
+        else{
+            korijen->desno_dijete=new Cvor(vrijednost,"Crvena",nullptr,nullptr,korijen); //ista stvar..
+            return korijen->desno_dijete;
+        }
+    }
+}
+
+void RBStablo::PopraviStablo(Cvor* trenutni){
+    if(trenutni->roditelj==nullptr){  //ako je ispunjen uslov, korijen uvijek crne boje i gotovo popravljanje
+        trenutni->boja="Crna"; //jer samo korijen nema roditelja
+        return;
+    }
+    if(trenutni->roditelj->roditelj==nullptr){
+        return;
+    }
+    Cvor* stric=VratiStrica(trenutni);//stric od trenutnog
+    if(stric==nullptr){
+            if(AkojeLijevo(trenutni) and AkojeLijevo(trenutni->roditelj)){ //Lijevo pa lijevo- slucaj
+                DesniZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(AkojeLijevo(trenutni->roditelj) and !AkojeLijevo(trenutni)){ //Lijevo pa desno-slucaj
+                LijeviZaokret(trenutni->roditelj);
+                DesniZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(!AkojeLijevo(trenutni->roditelj) and !AkojeLijevo(trenutni)){ //Desno pa desno-slucaj
+                LijeviZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(!AkojeLijevo(trenutni->roditelj) and AkojeLijevo(trenutni)){ //Desno pa lijevo-slucaj
+                DesniZaokret(trenutni->roditelj);
+                LijeviZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else{
+                return;
+            }
+    }
+    if(trenutni->roditelj->boja!="Crna" or trenutni!=korijen){ //prema strategiji umetanja djelimo na dva slucaja
+        if(stric->boja=="Crvena"){
+            trenutni->roditelj->boja="Crna"; //boja roditelja i strica ide na crnu
+            stric->boja="Crna";
+            stric->roditelj->boja="Crvena"; //dedo ide na crvenu
+            PopraviStablo(stric->roditelj); //pozivamo funkciju nad dedom, sve dok ne dodjemo do korijena
+        }
+        else{
+            if(AkojeLijevo(trenutni) and AkojeLijevo(trenutni->roditelj)){ //Lijevo pa lijevo- slucaj
+                DesniZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(AkojeLijevo(trenutni->roditelj) and !AkojeLijevo(trenutni)){ //Lijevo pa desno-slucaj
+                LijeviZaokret(trenutni->roditelj);
+                DesniZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(!AkojeLijevo(trenutni->roditelj) and !AkojeLijevo(trenutni)){ //Desno pa desno-slucaj
+                LijeviZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else if(!AkojeLijevo(trenutni->roditelj) and AkojeLijevo(trenutni)){ //Desno pa lijevo-slucaj
+                DesniZaokret(trenutni->roditelj);
+                LijeviZaokret(trenutni->roditelj->roditelj);
+                string zamjena=trenutni->roditelj->roditelj->boja;
+                trenutni->roditelj->roditelj->boja=trenutni->roditelj->boja;
+                trenutni->roditelj->boja=zamjena;
+                return;
+            }
+            else{
+                return;
+            }
+        }
+    }
+    return;
+}
+
+RBStablo::Cvor* RBStablo::VratiStrica(Cvor* trenutni){
+    if(trenutni->vrijednost<trenutni->roditelj->roditelj->vrijednost){ //Ako je vrijednost trenutnog manja od dedine
+        return trenutni->roditelj->roditelj->desno_dijete;//onda se trenutni nalazi u lijevom podstablu,pa je stric dedino desno dijete
+    }
+    else{ //u suprotnom, stric je dedino lijevo dijete
+        return trenutni->roditelj->roditelj->lijevo_dijete;
+    }
+}
+
+bool RBStablo::AkojeLijevo(Cvor* trenutni){ ////Vraca true ako je trenutni lijevo dijete,a false ako je trenutni desno dijete
+    if(trenutni->vrijednost<trenutni->roditelj->vrijednost){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+bool RBStablo::Trazi(int vrijednost){
+    return Trazi(vrijednost,korijen);
+}
+
+bool RBStablo::Trazi(int vrijednost,Cvor* korijen){ //Search funkcija kao i kod obicnog Binarnog stabla
+    if(korijen==nullptr){
+        return false;
+    }
+    if(vrijednost==korijen->vrijednost){
+        return true;
+    }
+    if(vrijednost<korijen->vrijednost){
+        return Trazi(vrijednost,korijen->lijevo_dijete);
+    }
+    else{
+        return Trazi(vrijednost,korijen->desno_dijete);
+    }
+}
+
+string RBStablo::DajBoju(int vrijednost){ //Vraca boju trazenog elementa
+    Cvor* trazeni=Trazeni(vrijednost,korijen);//Funkcija trazi element
+    if(trazeni!=nullptr){
+        return trazeni->boja;
+    }
+    else{
+        return "Nema elementa";
+    }
+}
+
+RBStablo::Cvor* RBStablo::Trazeni(int vrijednost,Cvor* korijen){
+    if(korijen==nullptr){
+        return nullptr;
+    }
+    if(vrijednost==korijen->vrijednost){
+        return korijen;
+    }
+    if(vrijednost<korijen->vrijednost){
+        return Trazeni(vrijednost,korijen->lijevo_dijete);
+    }
+    else{
+        return Trazeni(vrijednost,korijen->desno_dijete);
+    }
+}
+
+int RBStablo::Max(){
+    return Max(korijen);
+}
+
+int RBStablo::Min(){
+    return Min(korijen);
+}
+
+int RBStablo::Min(Cvor* korijen){ //Vraca min vrijednost u stablu
+    if(korijen->lijevo_dijete==nullptr){
+        return korijen->vrijednost;
+    }
+    return Min(korijen->lijevo_dijete);
+}
+
+int RBStablo::Max(Cvor* korijen){ //Vraca max vrijednost u stablu
+    if(korijen->desno_dijete==nullptr){
+        return korijen->vrijednost;
+    }
+    return Max(korijen->desno_dijete);
+}
+
+int RBStablo::BrojElemenata(){
+    return BrojElemenata(korijen);
+}
+
+int RBStablo::BrojElemenata(Cvor* korijen){ //Vraca Broj elemenata u citavom stablu
+    if(korijen==nullptr){
+        return 0;
+    }
+    return BrojElemenata(korijen->lijevo_dijete)+BrojElemenata(korijen->desno_dijete)+1;
+}
+
+int RBStablo::Visina(){
+    return Visina(korijen);
+}
+
+int RBStablo::Visina(Cvor* korijen){ //Vraca najvecu visinu, tj udaljenost od korijena do lista
+    if(korijen==nullptr){
+        return 0;
+    }
+    return max(Visina(korijen->lijevo_dijete),Visina(korijen->desno_dijete))+1;
+}
+
+int RBStablo::CrnaVisina(){ //Black-Height vraca broj crnih cvorova od korijena do bilo kojeg nullptr-a
+    return CrnaVisina(korijen->desno_dijete); //osobina RB Stabla je da svaki put od korijena do nullptr-a
+    //ima isti broj crnih cvorova, tako da put koji biramo nije bitan, dobit cemo istu vrijednst;
+    //s drugre strane ako put koji biramo utice na rezultat ove funkcije, tada znamo da stablo nije RB stablo.
+    //KOD OVOG RACUNANJA KORIJEN SE NE BROJI(UVIJEK CRN)!!
+}
+
+int RBStablo::CrnaVisina(Cvor* korijen){
+    if(korijen==nullptr){ //nullptr se racuna kao crni cvor
+        return 1;
+    }
+    if(korijen->boja=="Crna"){
+        return CrnaVisina(korijen->desno_dijete)+1; //Ako je boja crna +1
+    }
+    if(korijen->boja=="Crvena"){
+        return CrnaVisina(korijen->desno_dijete); //Ako je crvena, proslijedi;
+    }
+}
+
+int RBStablo::DubinaElementa(int vrijednost){
+    return DubinaElementa(vrijednost,korijen);
+}
+
+int RBStablo::DubinaElementa(int vrijednost,Cvor* korijen){ //Vraca dubinu na kojoj se nalazi trazeni element
+    if(korijen==nullptr){
+        return 0;
+    }
+    if(korijen->vrijednost==vrijednost){
+        return 1;
+    }
+    if(vrijednost<korijen->vrijednost){
+        return DubinaElementa(vrijednost,korijen->lijevo_dijete)+1;
+    }
+    else{
+        return DubinaElementa(vrijednost,korijen->desno_dijete)+1;
+    }
+}
